@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1028863375655",
+    "project_id": "global-shopping-list",
+    "storage_bucket": "global-shopping-list.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028863375655:android:e0b76222b4803f42e8d102",
+        "android_client_info": {
+          "package_name": "com.justin.gloabal_shopping_list.gloabal_shopping_list"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028863375655-2dkhoaltbtekq9tb67od6gj7hf7iu382.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPwCZQ2eBdMZkinRJH8ag1FXNg5KKNvjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028863375655-2dkhoaltbtekq9tb67od6gj7hf7iu382.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
