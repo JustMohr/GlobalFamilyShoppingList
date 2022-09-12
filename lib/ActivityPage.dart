@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gloabal_shopping_list/Database.dart';
 import 'package:gloabal_shopping_list/LoginPage.dart';
@@ -61,8 +62,18 @@ class _ActivityPageState extends State<ActivityPage> {
       ),
 
       key: Key(product),
-      background: Container(color: Colors.red),
       direction: DismissDirection.endToStart,
+      dismissThresholds: {DismissDirection.endToStart: 0.75},
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            margin: EdgeInsets.only(right: 10),
+            child: Icon(Icons.delete),
+          ),
+        ),
+      ),
       onDismissed: (direction) async {
         databaseService.removeProduct(product);
       }
