@@ -17,12 +17,19 @@ class _ActivityPageState extends State<ActivityPage> {
 
   late String id;
   late DatabaseService databaseService;
+  TextEditingController _textController = TextEditingController();
 
   @override
   void initState() {
     id = widget.groupID;
     databaseService = DatabaseService(id);
     super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    _textController.dispose();
   }
 
   @override
@@ -40,6 +47,7 @@ class _ActivityPageState extends State<ActivityPage> {
                     child: Padding(
                       padding: EdgeInsets.all(10),
                       child: TextField(
+                        controller: _textController,
                         decoration: InputDecoration(
                             isDense: true
                         ),
@@ -53,7 +61,7 @@ class _ActivityPageState extends State<ActivityPage> {
                         child: ElevatedButton(
                           child: Icon(Icons.add),
                           style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                          onPressed: (){},
+                          onPressed: addProduct,
                         )
                     )
                   )
@@ -111,6 +119,16 @@ class _ActivityPageState extends State<ActivityPage> {
         databaseService.removeProduct(product);
       }
     );
+  }
+
+  void addProduct(){
+    String input = _textController.text;
+    if(input.isEmpty)
+      return;
+
+    _textController.clear();
+    databaseService.addProduct(input);
+
   }
 
 }
