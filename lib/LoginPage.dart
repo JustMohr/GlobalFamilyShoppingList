@@ -22,6 +22,12 @@ class _LoginPageState extends State<LoginPage> {
   late String groupID;
 
   @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     final bool isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
@@ -145,50 +151,81 @@ class _LoginPageState extends State<LoginPage> {
 
   void joinGroupLogic() async{
 
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CircularProgressIndicator(),)
+    );
+
     groupID = textEditingController.text;
 
     if(groupID.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Gültige ID eingeben!'),
       ));
+      Navigator.pop(context);
       return;
     }
     if(await Connectivity().checkConnectivity() == ConnectivityResult.none){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Überprüfe deine Internetverbindung!'),
       ));
+      Navigator.pop(context);
       return;
     }
 
     FocusScope.of(context).requestFocus(new FocusNode());
 
-    if(await DatabaseService(groupID).checkIfUserExists()){
+    if(await DatabaseService(groupID).isUserExists()){
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('userID_SharedPrefs', textEditingController.text);
 
+      Navigator.pop(context);//remove showDialog
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ActivityPage(groupID)));
 
     }else{
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Fehler, Überprüfe die ID!'),
       ));
+      Navigator.pop(context);
     }
 
   }
 
   void createRoomLogic() async{
 
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CircularProgressIndicator(),)
+    );
+
     if(await Connectivity().checkConnectivity() == ConnectivityResult.none){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Überprüfe deine Internetverbindung!'),
       ));
+      Navigator.pop(context);
+      return;
+    }
+
+    DatabaseService databaseService = DatabaseService(groupID);
+    if(await databaseService.isUserExists()){
+      groupID = await DatabaseService.generateNewGroupID();
+      setState(() {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Fehler, veruche es erneut'),
+        ));
+      });
       return;
     }
 
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('userID_SharedPrefs', groupID);
-    print('object');
+
+    databaseService.activateGroup();
     //loged in
+    Navigator.pop(context);//remove showDialog
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ActivityPage(groupID)));
 
   }

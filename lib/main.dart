@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: (loginID == null) ? LoginPage() : ActivityPage(loginID!),
+      home: (loginID == null) ? LoginPage() : ActivityPage(loginID!)
     );
   }
 }

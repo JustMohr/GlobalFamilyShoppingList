@@ -13,11 +13,37 @@ class DatabaseService{
     return FirebaseFirestore.instance.collection('groups').doc().id;
   }
 
-  Future checkIfUserExists() async{
+  Future isUserExists() async{
     if((await collectionReference.doc(groupID).get()).exists)
       return true;
     else
       return false;
   }
+
+  void activateGroup(){
+    final json = {
+      'activate' : true,
+      'list' : []
+    };
+    collectionReference.doc(groupID).set(json);
+  }
+
+
+  Future<void> addProduct(String product) async{
+
+    Map<String, dynamic>? data = (await collectionReference.doc(groupID).get()).data();
+    List list = data!['list'];
+    list.add(product);
+
+    data['list'] = list;
+    collectionReference.doc(groupID).set(data);
+
+  }
+
+  /*Future<Stream<List<String>>> getProducts() async{
+
+
+
+  }*/
 
 }
