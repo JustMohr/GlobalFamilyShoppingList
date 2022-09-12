@@ -29,20 +29,44 @@ class _ActivityPageState extends State<ActivityPage> {
     return Scaffold(
       appBar: AppBar(title: Text('title')),
       body: SafeArea(
-        child: ElevatedButton(
-          child: Text(widget.groupID),
-          onPressed: ()async{
-            final prefs = await SharedPreferences.getInstance();
-            //prefs.remove('userID_SharedPrefs');
+        child: StreamBuilder<List>(
+            stream: databaseService.getProducts(),
+            builder: (context, snapshot){
+              if(snapshot.hasData) {
+                final list = snapshot.data!;
+                return ListView(
+                  children: list.map((element) => lsTile(element)).toList(),
+                );
+              }else{
+                return CircularProgressIndicator();
+              }
 
-            //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginPage()));
-            //databaseService.addProduct('eis');
-            databaseService.getProducts();
-
-
-          }
+            }
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          databaseService.addProduct('vogel');
+        },
       ),
     );
   }
+
+  Widget lsTile(String product){
+    return Dismissible(
+      child: Card(
+        child: ListTile(
+          title: Text(product),
+        ),
+      ),
+
+      key: Key(product),
+      background: Container(color: Colors.red),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) async {
+        databaseService.removeProduct(product);
+      }
+    );
+  }
+
 }

@@ -28,22 +28,14 @@ class DatabaseService{
     collectionReference.doc(groupID).set(json);
   }
 
-
-  Future<void> addProduct(String product) async{
-
-    Map<String, dynamic>? data = (await collectionReference.doc(groupID).get()).data();
-    List list = data!['list'];
-    list.add(product);
-
-    data['list'] = list;
-    collectionReference.doc(groupID).set(data);
-
-  }
-
-  /*Future<Stream<List<String>>> getProducts() async{
+  Stream<List> getProducts() =>
+      collectionReference.doc(groupID).snapshots().map((event) => event.data()?['list']);
 
 
+  Future<void> addProduct(String product) =>
+      collectionReference.doc(groupID).update({'list' : FieldValue.arrayUnion([product])});
 
-  }*/
+  Future<void> removeProduct(String product) =>
+      collectionReference.doc(groupID).update({'list' : FieldValue.arrayRemove([product])});
 
 }
