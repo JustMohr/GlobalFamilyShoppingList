@@ -28,27 +28,60 @@ class _ActivityPageState extends State<ActivityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('title')),
       body: SafeArea(
-        child: StreamBuilder<List>(
-            stream: databaseService.getProducts(),
-            builder: (context, snapshot){
-              if(snapshot.hasData) {
-                final list = snapshot.data!;
-                return ListView(
-                  children: list.map((element) => lsTile(element)).toList(),
-                );
-              }else{
-                return CircularProgressIndicator();
-              }
+        bottom: false,
+        child: Column(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height*0.1,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: TextField(
+                        decoration: InputDecoration(
+                            isDense: true
+                        ),
+                      )
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width *0.2,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(10, 5, 5, 5),
+                        child: ElevatedButton(
+                          child: Icon(Icons.add),
+                          style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          onPressed: (){},
+                        )
+                    )
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.grey,
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                child: StreamBuilder<List>(
+                    stream: databaseService.getProducts(),
+                    builder: (context, snapshot){
+                      if(snapshot.hasData) {
+                        final list = snapshot.data!;
+                        return ListView(
+                          children: list.map((element) => lsTile(element)).toList(),
+                        );
+                      }else{
+                        return CircularProgressIndicator();
+                      }
 
-            }
+                    }
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          databaseService.addProduct('vogel');
-        },
       ),
     );
   }
