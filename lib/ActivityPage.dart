@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gloabal_shopping_list/Database.dart';
 import 'package:gloabal_shopping_list/LoginPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,8 +49,11 @@ class _ActivityPageState extends State<ActivityPage> {
                       padding: EdgeInsets.all(10),
                       child: TextField(
                         controller: _textController,
+                        keyboardType: TextInputType.text,
+                        maxLines: 1,
                         decoration: InputDecoration(
-                            isDense: true
+                          isDense: true,
+                          hintText: 'Produkt',
                         ),
                       )
                     ),
@@ -71,13 +75,16 @@ class _ActivityPageState extends State<ActivityPage> {
             Expanded(
               child: Container(
                 color: Colors.grey,
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                padding: (MediaQuery.of(context).viewInsets.bottom != 0)?
+                EdgeInsets.fromLTRB(0, 10, 0, 0) : EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: StreamBuilder<List>(
                     stream: databaseService.getProducts(),
                     builder: (context, snapshot){
                       if(snapshot.hasData) {
                         final list = snapshot.data!;
-                        return ListView(
+                        return (list.isEmpty || list==null) ?
+                          Container():
+                          ListView(
                           children: list.map((element) => lsTile(element)).toList(),
                         );
                       }else{
@@ -88,6 +95,17 @@ class _ActivityPageState extends State<ActivityPage> {
                 ),
               ),
             ),
+            /*Container(
+              width: double.infinity,
+              color: Colors.grey,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 3),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text('Gruppen ID einsehen'),
+                ),
+              ),
+            )*/
           ],
         ),
       ),
@@ -96,9 +114,13 @@ class _ActivityPageState extends State<ActivityPage> {
 
   Widget lsTile(String product){
     return Dismissible(
-      child: Card(
-        child: ListTile(
-          title: Text(product),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(2, 0, 2, 0),
+        child: Card(
+          child: ListTile(
+            title: Text(product),
+            //trailing: Row(children: [Icon(Icons.arrow_back), Icon(Icons.delete)],mainAxisSize: MainAxisSize.min,),
+          ),
         ),
       ),
 
@@ -121,12 +143,21 @@ class _ActivityPageState extends State<ActivityPage> {
     );
   }
 
-  void addProduct(){
+  void addProduct() async{
     String input = _textController.text;
+
     if(input.isEmpty)
       return;
 
     _textController.clear();
+
+    if(await databaseService.isAlreadyInList(input)){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Produkt schon hinzugefügt"),
+      ));
+      return;
+    }
+
     databaseService.addProduct(input);
 
   }

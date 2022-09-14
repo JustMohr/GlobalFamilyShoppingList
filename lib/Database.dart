@@ -22,7 +22,7 @@ class DatabaseService{
 
   void activateGroup(){
     final json = {
-      'activate' : true,
+      'active' : true,
       'list' : []
     };
     collectionReference.doc(groupID).set(json);
@@ -33,9 +33,19 @@ class DatabaseService{
 
 
   Future<void> addProduct(String product) =>
-      collectionReference.doc(groupID).update({'list' : FieldValue.arrayUnion([product])});
+      collectionReference.doc(groupID).update({'list': FieldValue.arrayUnion([product])});
+
 
   Future<void> removeProduct(String product) =>
       collectionReference.doc(groupID).update({'list' : FieldValue.arrayRemove([product])});
+
+
+  Future<bool> isAlreadyInList(String product) async{
+    final List list = (await collectionReference.doc(groupID).get()).data()?['list'];
+    if(list == null || list.isEmpty || list.contains(product))
+      return true;
+    else
+      return false;
+  }
 
 }
