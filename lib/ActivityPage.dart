@@ -1,9 +1,7 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gloabal_shopping_list/Database.dart';
-import 'package:gloabal_shopping_list/LoginPage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gloabal_shopping_list/TutorialDialog.dart';
 
 class ActivityPage extends StatefulWidget {
 
@@ -24,6 +22,7 @@ class _ActivityPageState extends State<ActivityPage> {
   void initState() {
     id = widget.groupID;
     databaseService = DatabaseService(id);
+    TutorialDialog.tutorialCheck(context);
     super.initState();
   }
 
@@ -35,6 +34,7 @@ class _ActivityPageState extends State<ActivityPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -54,8 +54,18 @@ class _ActivityPageState extends State<ActivityPage> {
                         decoration: InputDecoration(
                           isDense: true,
                           hintText: 'Produkt',
+                          contentPadding: EdgeInsets.fromLTRB(3, 0, 3, 5)
                         ),
                       )
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width *0.1,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      splashRadius: 22,
+                      icon: Icon(Icons.group_add,),
+                      onPressed: showId,
                     ),
                   ),
                   SizedBox(
@@ -64,7 +74,10 @@ class _ActivityPageState extends State<ActivityPage> {
                       padding: EdgeInsets.fromLTRB(10, 5, 5, 5),
                         child: ElevatedButton(
                           child: Icon(Icons.add),
-                          style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: EdgeInsets.zero
+                          ),
                           onPressed: addProduct,
                         )
                     )
@@ -73,25 +86,28 @@ class _ActivityPageState extends State<ActivityPage> {
               ),
             ),
             Expanded(
-              child: Container(
-                color: Colors.grey,
-                padding: (MediaQuery.of(context).viewInsets.bottom != 0)?
-                EdgeInsets.fromLTRB(0, 10, 0, 0) : EdgeInsets.fromLTRB(0, 10, 0, 10),
-                child: StreamBuilder<List>(
-                    stream: databaseService.getProducts(),
-                    builder: (context, snapshot){
-                      if(snapshot.hasData) {
-                        final list = snapshot.data!;
-                        return (list.isEmpty || list==null) ?
-                          Container():
-                          ListView(
-                          children: list.map((element) => lsTile(element)).toList(),
-                        );
-                      }else{
-                        return CircularProgressIndicator();
-                      }
+              child: GestureDetector(
+                onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
+                child: Container(
+                  color: Colors.grey,
+                  padding: (MediaQuery.of(context).viewInsets.bottom != 0)?
+                  EdgeInsets.fromLTRB(0, 10, 0, 0) : EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: StreamBuilder<List>(
+                      stream: databaseService.getProducts(),
+                      builder: (context, snapshot){
+                        if(snapshot.hasData) {
+                          final list = snapshot.data!;
+                          return (list.isEmpty || list==null) ?
+                            Container():
+                            ListView(
+                              children: list.map((element) => lsTile(element)).toList(),
+                            );
+                        }else{
+                          return Center(child: CircularProgressIndicator());
+                        }
 
-                    }
+                      }
+                  ),
                 ),
               ),
             ),
@@ -157,9 +173,34 @@ class _ActivityPageState extends State<ActivityPage> {
       ));
       return;
     }
-
     databaseService.addProduct(input);
-
   }
 
+  void showId(){
+    showDialog(
+        context: context,
+        builder: (BuildContext alertContext){
+          return AlertDialog(
+            title: Text('Deine Gruppen-ID lautet:', textAlign: TextAlign.center,),
+            content: Text(id, textAlign: TextAlign.center),
+            actions: [
+              TextButton(
+                child: Text("kopieren"),
+                onPressed: (){
+                  Clipboard.setData(ClipboardData(text: '$id'));
+                  Navigator.pop(alertContext);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("ID In Zwischenablage kopiert"),
+                  ));
+                },
+              ),
+              TextButton(
+                child: Text("okay"),
+                onPressed: () => Navigator.pop(alertContext)
+              ),
+            ],
+          );
+        }
+    );
+  }
 }

@@ -34,101 +34,117 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            if(isJoinClicked)...[
-              Header('Gruppe beitreten', isKeyboard),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: TextField(
-                        controller: textEditingController,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                            isDense: true
+        child: GestureDetector(
+          onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
+          child: Stack(
+            children: [
+              if(isJoinClicked)...[
+                Header('Gruppe beitreten', isKeyboard),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: TextField(
+                          controller: textEditingController,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'ID',
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 25,),
-                    ElevatedButton(
+                      SizedBox(height: 25,),
+                      ElevatedButton(
+                          child: Icon(Icons.check_sharp),
+                          onPressed: joinGroupLogic
+                      ),
+                      ElevatedButton(
+                        child: Text('abbrechen'),
+                        onPressed: ()=> setState(() {
+                          isJoinClicked = false;
+                          isNewGroupClicked = false;
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                footer(
+                    'Gebe die ID der Gruppe ein, der du beitreten möchtest.',
+                    isKeyboard
+                )
+              ]else if(isNewGroupClicked)...[
+                Header('neue Gruppe erstellen?', isKeyboard),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+                        Text('ID:  $groupID'),
+                        SizedBox(width: 15,),
+                        InkWell(child: Icon(Icons.content_copy), onTap: (){
+                          Clipboard.setData(ClipboardData(text: '$groupID'));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("ID In Zwischenablage kopiert"),
+                          ));
+                        },)
+                      ],),
+                      SizedBox(height: 25,),
+                      ElevatedButton(
                         child: Icon(Icons.check_sharp),
-                        onPressed: joinGroupLogic
-                    ),
-                    ElevatedButton(
-                      child: Text('abbrechen'),
-                      onPressed: ()=> setState(() {
-                        isJoinClicked = false;
-                        isNewGroupClicked = false;
-                      }),
-                    ),
-                  ],
+                        onPressed: createRoomLogic,
+                      ),
+                      ElevatedButton(
+                        child: Text('abbrechen'),
+                        onPressed: ()=> setState(() {
+                          isJoinClicked = false;
+                          isNewGroupClicked = false;
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ]else if(isNewGroupClicked)...[
-              Header('neue Gruppe erstellen?', isKeyboard),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.center,children: [
-                      Text('ID:  $groupID'),
-                      SizedBox(width: 15,),
-                      InkWell(child: Icon(Icons.content_copy), onTap: (){
-                        Clipboard.setData(ClipboardData(text: '$groupID'));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("ID In Zwischenablage kopiert"),
-                        ));
-                      },)
-                    ],),
-                    SizedBox(height: 25,),
-                    ElevatedButton(
-                      child: Icon(Icons.check_sharp),
-                      onPressed: createRoomLogic,
-                    ),
-                    ElevatedButton(
-                      child: Text('abbrechen'),
-                      onPressed: ()=> setState(() {
-                        isJoinClicked = false;
-                        isNewGroupClicked = false;
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ]else...[
-              Header('shopping list', isKeyboard),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      child: Text('Gruppe beitreten'),
-                      onPressed: ()=> setState(() {
-                        isJoinClicked = true;
-                        isNewGroupClicked = false;
-                      }),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
-                    ElevatedButton(
-                        child: Text('neue Gruppe erstellen'),
-                        onPressed: ()async {
-                          groupID = await DatabaseService.generateNewGroupID();
+                footer(
+                    'Die ID kann später noch eingesehen werden.',
+                    isKeyboard
+                )
+              ]else...[
+                Header('shoppingFamily', isKeyboard),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        child: Text('Gruppe beitreten'),
+                        onPressed: ()=> setState(() {
+                          isJoinClicked = true;
+                          isNewGroupClicked = false;
+                        }),
+                      ),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.1,),
+                      ElevatedButton(
+                          child: Text('neue Gruppe erstellen'),
+                          onPressed: ()async {
+                            groupID = await DatabaseService.generateNewGroupID();
 
-                          setState(() {
-                            isNewGroupClicked = true;
-                            isJoinClicked = false;
-                          });
-                        }
-                    ),
-                  ],
+                            setState(() {
+                              isNewGroupClicked = true;
+                              isJoinClicked = false;
+                            });
+                          }
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                footer(
+                  'Tritt einer Gruppe bei oder erstelle eine neue.',
+                  isKeyboard
+                )
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -147,6 +163,27 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+  
+  Widget footer(String text, bool isKeyboard){
+
+    final space = MediaQuery.of(context).size.width * 0.2;
+
+    if(isKeyboard)
+      return Container();
+    else 
+      return SizedBox(
+        height: double.infinity,
+        width:  double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(padding: EdgeInsets.fromLTRB(space, 0, space, 0) ,child: Text(text, textAlign: TextAlign.center)),
+            SizedBox(height: 20,)
+          ],
+        ),
+      );
   }
 
   void joinGroupLogic() async{
@@ -182,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pop(context);//remove showDialog
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ActivityPage(groupID)));
-
+      
     }else{
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Fehler, Überprüfe die ID!'),

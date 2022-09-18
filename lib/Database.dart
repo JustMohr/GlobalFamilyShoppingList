@@ -21,15 +21,25 @@ class DatabaseService{
   }
 
   void activateGroup(){
+
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
+
     final json = {
-      'active' : true,
+      'timestamp' : date.toString(),
       'list' : []
     };
     collectionReference.doc(groupID).set(json);
   }
 
-  Stream<List> getProducts() =>
-      collectionReference.doc(groupID).snapshots().map((event) => event.data()?['list']);
+  Stream<List> getProducts() {
+
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
+    collectionReference.doc(groupID).update({'timestamp': date.toString()});
+
+    return collectionReference.doc(groupID).snapshots().map((event) => event.data()?['list']);
+  }
 
 
   Future<void> addProduct(String product) =>
@@ -42,7 +52,7 @@ class DatabaseService{
 
   Future<bool> isAlreadyInList(String product) async{
     final List list = (await collectionReference.doc(groupID).get()).data()?['list'];
-    if(list == null || list.isEmpty || list.contains(product))
+    if(list.contains(product))
       return true;
     else
       return false;
