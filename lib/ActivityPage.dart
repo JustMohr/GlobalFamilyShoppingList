@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gloabal_shopping_list/AddService.dart';
 import 'package:gloabal_shopping_list/Database.dart';
 import 'package:gloabal_shopping_list/TutorialDialog.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class ActivityPage extends StatefulWidget {
 
@@ -17,12 +19,17 @@ class _ActivityPageState extends State<ActivityPage> {
   late String id;
   late DatabaseService databaseService;
   TextEditingController _textController = TextEditingController();
+  BannerAd? _bannerAd;
+  InterstitialAd? _interstitialAd;
 
   @override
   void initState() {
     id = widget.groupID;
     databaseService = DatabaseService(id);
     TutorialDialog.tutorialCheck(context);
+
+    _createInterstitialAd();
+    _createBannerAd();
     super.initState();
   }
 
@@ -30,10 +37,17 @@ class _ActivityPageState extends State<ActivityPage> {
   @override
   void dispose() {
     _textController.dispose();
+    _bannerAd?.dispose();
+    _interstitialAd?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if(_interstitialAd != null){
+      _interstitialAd!.show();
+      _interstitialAd = null;
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -81,7 +95,8 @@ class _ActivityPageState extends State<ActivityPage> {
                           onPressed: addProduct,
                         )
                     )
-                  )
+                  ),
+
                 ],
               ),
             ),
@@ -111,17 +126,16 @@ class _ActivityPageState extends State<ActivityPage> {
                 ),
               ),
             ),
-            /*Container(
-              width: double.infinity,
-              color: Colors.grey,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text('Gruppen ID einsehen'),
+
+            if(_bannerAd!=null)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd!,),
                 ),
-              ),
-            )*/
+              )
           ],
         ),
       ),
@@ -203,4 +217,30 @@ class _ActivityPageState extends State<ActivityPage> {
         }
     );
   }
+
+  _createBannerAd(){
+    BannerAd(
+      adUnitId: AdService.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) =>
+            setState (()=> _bannerAd = ad as BannerAd),
+        onAdFailedToLoad: (ad, error) => ad.dispose(),
+      )
+    ).load();
+  }
+
+  _createInterstitialAd(){
+    InterstitialAd.load(
+      adUnitId: AdService.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) =>
+          setState(() => _interstitialAd = ad),
+        onAdFailedToLoad: (err) => print('Failed to load an interstitial ad: ${err.message}')
+      ),
+    );
+  }
+
 }

@@ -12,7 +12,7 @@ class TutorialDialog {
     if (prefs.getBool('firstTime_global_shopping_list') != null)
       return;
 
-    //prefs.setBool('firstTime_global_shopping_list', false);
+    //prefs.setBool('firstTime_global_shopping_list', false); //active for work
 
     _tutorialDialog(context);
   }

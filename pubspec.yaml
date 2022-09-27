@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.0.15
   connectivity_plus: ^2.3.6+1
   smooth_page_indicator: ^1.0.0+2
+  google_mobile_ads: ^2.0.1
 
 dev_dependencies:
   flutter_test:
