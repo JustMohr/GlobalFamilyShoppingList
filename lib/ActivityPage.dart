@@ -20,7 +20,6 @@ class _ActivityPageState extends State<ActivityPage> {
   late DatabaseService databaseService;
   TextEditingController _textController = TextEditingController();
   BannerAd? _bannerAd;
-  InterstitialAd? _interstitialAd;
 
   @override
   void initState() {
@@ -28,7 +27,6 @@ class _ActivityPageState extends State<ActivityPage> {
     databaseService = DatabaseService(id);
     TutorialDialog.tutorialCheck(context);
 
-    _createInterstitialAd();
     _createBannerAd();
     super.initState();
   }
@@ -38,16 +36,10 @@ class _ActivityPageState extends State<ActivityPage> {
   void dispose() {
     _textController.dispose();
     _bannerAd?.dispose();
-    _interstitialAd?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    if(_interstitialAd != null){
-      _interstitialAd!.show();
-      _interstitialAd = null;
-    }
 
     return Scaffold(
       body: SafeArea(
@@ -229,18 +221,6 @@ class _ActivityPageState extends State<ActivityPage> {
         onAdFailedToLoad: (ad, error) => ad.dispose(),
       )
     ).load();
-  }
-
-  _createInterstitialAd(){
-    InterstitialAd.load(
-      adUnitId: AdService.interstitialAdUnitId,
-      request: AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) =>
-          setState(() => _interstitialAd = ad),
-        onAdFailedToLoad: (err) => print('Failed to load an interstitial ad: ${err.message}')
-      ),
-    );
   }
 
 }
